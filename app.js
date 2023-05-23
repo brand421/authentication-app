@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require ('ejs');
 const mongoose = require('mongoose');
+const encrypt = require('mongoose-encryption');
 
 const app = express();
 
@@ -14,10 +15,13 @@ const url = Object.values(uri).toString();
 
 mongoose.connect(url, { useNewUrlParser: true });
 
-const userSchema = {
+const userSchema = new mongoose.Schema ({
     email: String,
     password: String
-}
+})
+
+const secret = "T******************n";
+userSchema.plugin(encrypt, { secret: secret, encryptedFields: ["password"] });
 
 const User = new mongoose.model("User", userSchema);
 
@@ -40,6 +44,7 @@ app.post("/register", function(req, res) {
     });
     
     newUser.save();
+    res.render("secrets");
 })
 
 app.post("/login", function(req, res) {
